@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en" style="height: auto; min-height: 100%;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eshopi - Smart Shopping & Gifting</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
+        
+        .kolam-pattern {
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 153, 51, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(19, 136, 8, 0.05) 0%, transparent 50%),
+                repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(37, 99, 235, 0.02) 20px, rgba(37, 99, 235, 0.02) 40px);
+        }
+        
+        .holographic-glow {
+            background: linear-gradient(135deg, rgba(255, 153, 51, 0.1), rgba(37, 99, 235, 0.1), rgba(19, 136, 8, 0.1));
+            animation: holographic 3s ease-in-out infinite;
+        }
+        
+        @keyframes holographic {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        
+        .lotus-petal {
+            transition: all 0.3s ease;
+        }
+        
+        .occasion-badge {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 153, 51, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(255, 153, 51, 0.6); }
+        }
+        
+        .price-comparison-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .price-comparison-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        .best-deal-badge {
+            background: linear-gradient(135deg, #10B981, #059669);
+            animation: shimmer 2s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        .floating-action {
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .floating-action:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(37, 99, 235, 0.4);
+        }
+        
+        .smart-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 120px;
+            overflow: hidden;
+        }
+        
+        .smart-card.expanded {
+            max-height: 600px;
+        }
+        
+        .availability-check {
+            animation: checking 1s ease-in-out infinite;
+        }
+        
+        @keyframes checking {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        .shopping-item {
+            transition: all 0.3s ease;
+        }
+        
+        .shopping-item.checked {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+        
+        .category-tag {
+            transition: all 0.2s ease;
+        }
+        
+        .category-tag.active {
+            background: linear-gradient(135deg, #2563EB, #1D4ED8);
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .holi-theme {
+            background: linear-gradient(135deg, #FF9933, #FF6699, #9933FF, #33CCFF);
+            background-size: 400% 400%;
+            animation: holiGradient 8s ease infinite;
+        }
+        
+        @keyframes holiGradient {
+            0% { background-position: 0% 50% }
+            50% { background-position: 100% 50% }
+            100% { background-position: 0% 50% }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50" style="height: auto; min-height: 100%;" x-data="{ 
+    currentScreen: 'login', 
+    password: '', 
+    username: '',
+    usernameAvailable: null,
+    expandedCard: null,
+    passwordStrength: 0,
+    shoppingListItems: [],
+    newItemText: '',
+    selectedCategory: 'All',
+    categories: ['All', 'Grocery', 'Electronics', 'Fashion', 'Home', 'Personal Care', 'Others'],
+    activeNav: 'home',
+    userProfile: {
+        name: 'Rajesh Kumar',
+        email: 'rajesh.kumar@example.com',
+        mobile: '+91 9876543210',
+        joinedDate: 'March 2024',
+        totalLists: 12,
+        savedAmount: 2450
+    },
+    checkUsername() {
+        if(this.username.length > 3) {
+            setTimeout(() => { this.usernameAvailable = Math.random() > 0.5; }, 1000);
+        }
+    },
+    calculatePasswordStrength() {
+        let strength = 0;
+        if(this.password.length >= 8) strength++;
+        if(/[A-Z]/.test(this.password)) strength++;
+        if(/[0-9]/.test(this.password)) strength++;
+        if(/[^A-Za-z0-9]/.test(this.password)) strength++;
+        this.passwordStrength = strength;
+    },
+    addShoppingItem() {
+        if(this.newItemText.trim() !== '') {
+            this.shoppingListItems.push({
+                id: Date.now(),
+                text: this.newItemText,
+                checked: false,
+                category: this.selectedCategory === 'All' ? 'Grocery' : this.selectedCategory
+            });
+            this.newItemText = '';
+        }
+    },
+    removeShoppingItem(id) {
+        this.shoppingListItems = this.shoppingListItems.filter(item => item.id !== id);
+    },
+    toggleItemChecked(id) {
+        const item = this.shoppingListItems.find(item => item.id === id);
+        if(item) item.checked = !item.checked;
+    },
+    getFilteredItems() {
+        if(this.selectedCategory === 'All') return this.shoppingListItems;
+        return this.shoppingListItems.filter(item => item.category === this.selectedCategory);
+    },
+    getTotalItems() {
+        return this.shoppingListItems.length;
+    },
+    getCheckedItems() {
+        return this.shoppingListItems.filter(item => item.checked).length;
+    },
+    redirectToStore(url) {
+        window.open(url, '_blank');
+    },
+    navigateTo(screen, navItem = null) {
+        this.currentScreen = screen;
+        if(navItem) {
+            this.activeNav = navItem;
+        }
+    }
+}">
+
+    <!-- SCREEN 1: LOGIN PAGE -->
+    <div x-show="currentScreen === 'login'" class="flex flex-col min-h-screen kolam-pattern fade-in">
+        <!-- Decorative Header -->
+        <div class="absolute top-0 left-0 right-0 h-64 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 rounded-b-3xl"></div>
+        
+        <div class="relative z-10 flex flex-col px-6 py-8">
+            <!-- Unique Logo Design -->
+            <div class="flex flex-col items-center mb-8 mt-8">
+                <div class="relative mb-6">
+                    <!-- Main Logo Container -->
+                    <div class="w-32 h-32 bg-white rounded-3xl flex items-center justify-center shadow-2xl relative overflow-hidden">
+                        <!-- Gradient Background -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-orange-50"></div>
+                        
+                        <!-- Shopping Cart (Center) -->
+                        <div class="relative z-10">
+                            <i class="fas fa-shopping-cart text-blue-600 text-4xl"></i>
+                        </div>
+                        
+                        <!-- Gift Box (Top Right) -->
+                        <div class="absolute top-2 right-2 w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg transform rotate-12">
+                            <i class="fas fa-gift text-white text-lg"></i>
+                        </div>
+                        
+                        <!-- Calendar (Bottom Left) -->
+                        <div class="absolute bottom-2 left-2 w-10 h-10 bg-gradient-to-br from-green-600 to-green-700 rounded-lg flex items-center justify-center shadow-lg">
+                            <i class="fas fa-calendar-alt text-white text-sm"></i>
+                        </div>
+                        
+                        <!-- Decorative Dots (Indian Pattern) -->
+                        <div class="absolute top-1 left-1 w-2 h-2 bg-orange-400 rounded-full"></div>
+                        <div class="absolute bottom-1 right-1 w-2 h-2 bg-blue-400 rounded-full"></div>
+                    </div>
+                </div>
+                
+                <h1 class="text-4xl font-bold text-white mb-2">Eshopi</h1>
+                <p class="text-blue-100 text-sm font-medium">Smart Shopping & Intelligent Gifting</p>
+            </div>
+
+            <!-- Login Form Card -->
+            <div class="bg-white rounded-3xl shadow-2xl p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Welcome Back</h2>
+                
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+                        <div class="relative">
+                            <i class="fas fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" placeholder="Enter your name" class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Mobile Number</label>
+                        <div class="flex">
+                            <span class="inline-flex items-center px-4 py-3 bg-gradient-to-r from-orange-500 to-orange-600 border-2 border-orange-500 rounded-l-xl text-white text-sm font-bold">+91</span>
+                            <div class="relative flex-1">
+                                <i class="fas fa-mobile-alt absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input type="tel" placeholder="Enter mobile number" class="w-full pl-12 pr-4 py-3 border-2 border-l-0 border-gray-200 rounded-r-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+                        <div class="relative">
+                            <i class="fas fa-envelope absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="email" placeholder="Enter your email" class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Smart Integration Note -->
+                <div class="bg-gradient-to-r from-blue-50 to-orange-50 border-2 border-blue-200 rounded-2xl p-4 mb-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-20 h-20 bg-orange-400 opacity-10 rounded-full -mr-10 -mt-10"></div>
+                    <div class="relative flex items-start">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center mr-3 flex-shrink-0">
+                            <i class="fas fa-lightbulb text-white"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800 mb-1">Smart Integration</p>
+                            <p class="text-xs text-gray-600 leading-relaxed">Login with the same email as used in <span class="font-bold text-blue-600">Google Calendar</span> and <span class="font-bold text-orange-600">Instagram</span> for intelligent gift recommendations</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Continue Button -->
+                <button @click="navigateTo('register')" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all mb-4">
+                    Continue to Register
+                </button>
+
+                <!-- Divider -->
+                <div class="flex items-center my-6">
+                    <div class="flex-1 border-t-2 border-gray-200"></div>
+                    <span class="px-4 text-sm font-semibold text-gray-400">OR</span>
+                    <div class="flex-1 border-t-2 border-gray-200"></div>
+                </div>
+
+                <!-- Google OAuth Button -->
+                <button @click="navigateTo('home', 'home')" class="w-full bg-white border-2 border-gray-300 text-gray-700 py-4 rounded-xl font-bold flex items-center justify-center hover:bg-gray-50 hover:border-gray-400 transition-all shadow-md">
+                    <svg class="w-6 h-6 mr-3" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Continue with Google
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: REGISTRATION PAGE -->
+    <div x-show="currentScreen === 'register'" class="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 kolam-pattern fade-in">
+        <!-- Header -->
+        <div class="px-6 py-6">
+            <div class="flex items-center mb-6">
+                <button @click="navigateTo('login')" class="w-12 h-12 bg-white rounded-xl shadow-md flex items-center justify-center mr-4 hover:bg-gray-50 transition">
+                    <i class="fas fa-arrow-left text-gray-700 text-lg"></i>
+                </button>
+                <h2 class="text-2xl font-bold text-gray-800">Create Your Account</h2>
+            </div>
+        </div>
+
+        <!-- Kolam-Inspired Circular Progress -->
+        <div class="flex justify-center mb-8">
+            <div class="relative w-40 h-40">
+                <!-- Outer Decorative Ring (Kolam Pattern) -->
+                <svg class="absolute inset-0 w-40 h-40 transform -rotate-90">
+                    <!-- Background Circle -->
+                    <circle cx="80" cy="80" r="70" stroke="#E5E7EB" stroke-width="2" fill="none" stroke-dasharray="4 4"/>
+                    
+                    <!-- Progress Circle -->
+                    <circle cx="80" cy="80" r="70" stroke="url(#gradient1)" stroke-width="8" fill="none" 
+                            stroke-dasharray="439.82" stroke-dashoffset="109.95" stroke-linecap="round"
+                            style="filter: drop-shadow(0 0 8px rgba(37, 99, 235, 0.4))"/>
+                    
+                    <!-- Decorative Dots (Kolam Style) -->
+                    <circle cx="80" cy="10" r="3" fill="#FF9933"/>
+                    <circle cx="150" cy="80" r="3" fill="#2563EB"/>
+                    <circle cx="80" cy="150" r="3" fill="#138808"/>
+                    <circle cx="10" cy="80" r="3" fill="#FF9933"/>
+                    
+                    <defs>
+                        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#2563EB;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#FF9933;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#138808;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                
+                <!-- Center Content -->
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span class="text-3xl font-bold bg-gradient-to-r from-blue-600 via-orange-500 to-green-600 bg-clip-text text-transparent">75%</span>
+                    <span class="text-xs text-gray-500 font-semibold mt-1">Complete</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registration Form -->
+        <div class="px-6 space-y-5">
+            <!-- Username with Live Availability -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Username</label>
+                <div class="relative">
+                    <i class="fas fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" x-model="username" @input="checkUsername()" placeholder="Choose a unique username" class="w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition">
+                    <div class="absolute right-4 top-1/2 transform -translate-y-1/2">
+                        <i x-show="username.length > 3 && usernameAvailable === null" class="fas fa-spinner fa-spin text-blue-600 availability-check"></i>
+                        <i x-show="usernameAvailable === true" class="fas fa-check-circle text-green-600"></i>
+                        <i x-show="usernameAvailable === false" class="fas fa-times-circle text-red-600"></i>
+                    </div>
+                </div>
+                <p x-show="usernameAvailable === true" class="text-xs text-green-600 mt-1 font-semibold">✓ Username available</p>
+                <p x-show="usernameAvailable === false" class="text-xs text-red-600 mt-1 font-semibold">✗ Username already taken</p>
+            </div>
+            
+            <!-- Password with Lotus Flower Strength Indicator -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+                <div class="relative">
+                    <i class="fas fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="password" x-model="password" @input="calculatePasswordStrength()" placeholder="Create a strong password" class="w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition">
+                    <button class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lotus Flower Password Strength Visualization -->
+            <div class="bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl p-5">
+                <p class="text-sm font-semibold text-gray-700 mb-3">Password Strength</p>
+                
+                <!-- Lotus Flower SVG -->
+                <div class="flex justify-center mb-3">
+                    <svg width="120" height="120" viewBox="0 0 120 120">
+                        <!-- Center Circle -->
+                        <circle cx="60" cy="60" r="12" :fill="passwordStrength >= 1 ? '#FF9933' : '#E5E7EB'" class="lotus-petal"/>
+                        
+                        <!-- Inner Petals (4 petals) -->
+                        <ellipse cx="60" cy="40" rx="8" ry="16" :fill="passwordStrength >= 2 ? '#FF9933' : '#E5E7EB'" class="lotus-petal"/>
+                        <ellipse cx="80" cy="60" rx="16" ry="8" :fill="passwordStrength >= 2 ? '#FF9933' : '#E5E7EB'" class="lotus-petal"/>
+                        <ellipse cx="60" cy="80" rx="8" ry="16" :fill="passwordStrength >= 2 ? '#FF9933' : '#E5E7EB'" class="lotus-petal"/>
+                        <ellipse cx="40" cy="60" rx="16" ry="8" :fill="passwordStrength >= 2 ? '#FF9933' : '#E5E7EB'" class="lotus-petal"/>
+                        
+                        <!-- Outer Petals (8 petals) -->
+                        <ellipse cx="60" cy="25" rx="6" ry="14" :fill="passwordStrength >= 3 ? '#2563EB' : '#E5E7EB'" class="lotus-petal"/>
+                        <ellipse cx="75" cy="32" rx="10" ry="6" :fill="passwordStrength >= 3 ? '#2563EB' : '#E5E7EB'" class="lotus-petal" transform="rotate(45 75 32)"/>
+                        <ellipse cx="88" cy="45" rx="6" ry="10" :fill="passwordStrength >= 3 ? '#2563EB' : '#E5E7EB'" class="lotus-petal" transform="rotate(90 88 45)"/>
+                        <ellipse cx="95" cy="60" rx="14" ry="6" :fill="passwordStrength >= 3 ? '#2563EB' : '#E5E7EB'" class="lotus-petal"/>
+                        <ellipse cx="88" cy="75" rx="6" ry="10" :fill="passwordStrength >= 3 ? '#2563EB' : '#E5E7EB'" class="lotus-petal" transform="rotate(90 88 75)"/>
+                        <ellipse cx="75" cy="88" rx="10" ry="6" :fill="passwordStrength >= 3 ? '#2563EB' : '#E5E7EB'" class="lotus-petal" transform="rotate(45 75 88)"/>
+                        <ellipse cx="60" cy="95" rx="6" ry="14" :fill="passwordStrength >= 3 ? '#2563EB' : '#E5E7EB'" class="lotus-petal"/>
+                        <ellipse cx="45" cy="88" rx="10" ry="6" :fill="passwordStrength >= 3 ? '#2563EB' : '#E5E7EB'" class="lotus-petal" transform="rotate(-45 45 88)"/>
+                        <ellipse cx="32" cy="75" rx="6" ry="10" :fill="passwordStrength >= 3 ? '#2563EB' : '#E5E7EB'" class="lotus-petal" transform="rotate(90 32 75)"/>
+                        <ellipse cx="25" cy="60" rx="14" ry="6" :fill="passwordStrength >= 3 ? '#2563EB' : '#E5E7EB'" class="lotus-petal"/>
+                        <ellipse cx="32" cy="45" rx="6" ry="10" :fill="passwordStrength >= 3 ? '#2563EB' : '#E5E7EB'" class="lotus-petal" transform="rotate(90 32 45)"/>
+                        <ellipse cx="45" cy="32" rx="10" ry="6" :fill="passwordStrength >= 3 ? '#2563EB' : '#E5E7EB'" class="lotus-petal" transform="rotate(-45 45 32)"/>
+                        
+                        <!-- Full Bloom Outer Ring -->
+                        <circle cx="60" cy="60" r="50" :stroke="passwordStrength >= 4 ? '#138808' : '#E5E7EB'" stroke-width="2" fill="none" stroke-dasharray="4 4" class="lotus-petal"/>
+                    </svg>
+                </div>
+                
+                <div class="text-center mb-3">
+                    <span x-show="passwordStrength === 0" class="text-sm font-semibold text-gray-500">Start typing...</span>
+                    <span x-show="passwordStrength === 1" class="text-sm font-semibold text-red-600">Weak - Bud forming</span>
+                    <span x-show="passwordStrength === 2" class="text-sm font-semibold text-orange-600">Fair - Petals opening</span>
+                    <span x-show="passwordStrength === 3" class="text-sm font-semibold text-blue-600">Good - Blooming</span>
+                    <span x-show="passwordStrength === 4" class="text-sm font-semibold text-green-600">Strong - Full bloom!</span>
+                </div>
+                
+                <div class="space-y-1 text-xs">
+                    <div class="flex items-center" :class="password.length >= 8 ? 'text-green-600' : 'text-gray-400'">
+                        <i :class="password.length >= 8 ? 'fas fa-check-circle' : 'far fa-circle'" class="mr-2"></i>
+                        <span>At least 8 characters</span>
+                    </div>
+                    <div class="flex items-center" :class="/[A-Z]/.test(password) ? 'text-green-600' : 'text-gray-400'">
+                        <i :class="/[A-Z]/.test(password) ? 'fas fa-check-circle' : 'far fa-circle'" class="mr-2"></i>
+                        <span>Uppercase letter</span>
+                    </div>
+                    <div class="flex items-center" :class="/[0-9]/.test(password) ? 'text-green-600' : 'text-gray-400'">
+                        <i :class="/[0-9]/.test(password) ? 'fas fa-check-circle' : 'far fa-circle'" class="mr-2"></i>
+                        <span>Number</span>
+                    </div>
+                    <div class="flex items-center" :class="/[^A-Za-z0-9]/.test(password) ? 'text-green-600' : 'text-gray-400'">
+                        <i :class="/[^A-Za-z0-9]/.test(password) ? 'fas fa-check-circle' : 'far fa-circle'" class="mr-2"></i>
+                        <span>Special character</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Confirm Password</label>
+                <div class="relative">
+                    <i class="fas fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="password" placeholder="Re-enter your password" class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition">
+                </div>
+            </div>
+
+            <!-- Terms Toggle -->
+            <div class="bg-white rounded-2xl p-4 border-2 border-gray-200">
+                <label class="flex items-start cursor-pointer">
+                    <div class="relative inline-block w-12 h-6 mr-3 flex-shrink-0 mt-1">
+                        <input type="checkbox" class="sr-only peer">
+                        <div class="w-12 h-6 bg-gray-300 rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-blue-600 peer-checked:to-green-600 transition-all"></div>
+                        <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all peer-checked:translate-x-6"></div>
+                    </div>
+                    <span class="text-sm text-gray-700 leading-relaxed">
+                        I agree to the <span class="font-bold text-blue-600">Terms & Conditions</span> and <span class="font-bold text-orange-600">Privacy Policy</span>
+                    </span>
+                </label>
+            </div>
+
+            <!-- Create Account Button -->
+            <button @click="navigateTo('home', 'home')" class="w-full bg-gradient-to-r from-blue-600 via-orange-500 to-green-600 text-white py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all">
+                Create Account
+            </button>
+
+            <!-- Login Link -->
+            <p class="text-center text-sm text-gray-600 pb-6">
+                Already have an account? <button @click="navigateTo('login')" class="text-blue-600 font-bold">Login</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- SCREEN 3: HOME DASHBOARD - SMART SHOPPING HUB -->
+    <div x-show="currentScreen === 'home'" class="flex flex-col bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 pb-24 fade-in">
+        <!-- Header with Holographic Effect -->
+        <div class="px-6 py-6 relative overflow-hidden">
+            <div class="absolute inset-0 holographic-glow"></div>
+            <div class="relative z-10 flex items-center justify-between mb-6">
+                <div>
+                    <p class="text-blue-100 text-sm font-medium">Namaste,</p>
+                    <h2 class="text-3xl font-bold text-white">Rajesh Kumar</h2>
+                </div>
+                <div class="flex space-x-3">
+                    <button class="relative w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                        <i class="fas fa-bell text-white text-lg"></i>
+                        <span class="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full text-white text-xs font-bold flex items-center justify-center occasion-badge">3</span>
+                    </button>
+                    <button @click="navigateTo('profile', 'profile')" class="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                        <i class="fas fa-user-circle text-white text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Action Cards with Floating Effect -->
+        <div class="px-6 space-y-4 mb-6">
+            <!-- Shopping List Card -->
+            <button @click="navigateTo('shoppingList', 'lists')" class="w-full bg-white rounded-3xl p-6 shadow-2xl floating-action">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                            <i class="fas fa-list-ul text-white text-3xl"></i>
+                        </div>
+                        <div class="text-left">
+                            <h3 class="text-xl font-bold text-gray-800 mb-1">Create Shopping List</h3>
+                            <p class="text-sm text-gray-500">Collaborative list builder</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400 text-xl"></i>
+                </div>
+            </button>
+
+            <!-- Gift Suggestions Card with Glow -->
+            <button @click="navigateTo('gifts', 'gifts')" class="w-full bg-gradient-to-r from-orange-500 to-orange-600 rounded-3xl p-6 shadow-2xl floating-action relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-orange-400 to-orange-500 opacity-50 blur-xl"></div>
+                <div class="relative z-10 flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-20 h-20 bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                            <i class="fas fa-gift text-white text-3xl"></i>
+                        </div>
+                        <div class="text-left">
+                            <h3 class="text-xl font-bold text-white mb-1">Gift Suggestions</h3>
+                            <p class="text-sm text-orange-100">AI-powered recommendations</p>
+                            <div class="flex items-center mt-2">
+                                <span class="bg-white bg-opacity-30 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full occasion-badge">3 occasions detected</span>
+                            </div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-white text-xl"></i>
+                </div>
+            </button>
+        </div>
+
+        <!-- Upcoming Occasions Timeline (Google Calendar Integration) -->
+        <div class="px-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-white flex items-center">
+                    <i class="fas fa-calendar-alt mr-2"></i>
+                    Upcoming Occasions
+                </h3>
+                <button class="text-white text-sm font-semibold bg-white bg-opacity-20 backdrop-blur-sm px-4 py-2 rounded-full">Next 14 Days</button>
+            </div>
+
+            <div class="space-y-3">
+                <!-- Birthday Occasion -->
+                <div class="bg-white rounded-2xl p-4 shadow-lg">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center mr-3">
+                                <i class="fas fa-birthday-cake text-pink-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">Priya's Birthday</h4>
+                                <p class="text-xs text-gray-500">Tomorrow, March 15</p>
+                            </div>
+                        </div>
+                        <span class="bg-pink-100 text-pink-700 text-xs font-bold px-3 py-1 rounded-full">Birthday</span>
+                    </div>
+                </div>
+
+                <!-- Anniversary Occasion -->
+                <div class="bg-white rounded-2xl p-4 shadow-lg">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mr-3">
+                                <i class="fas fa-heart text-red-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">Wedding Anniversary</h4>
+                                <p class="text-xs text-gray-500">March 20, 5 days</p>
+                            </div>
+                        </div>
+                        <span class="bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-full">Anniversary</span>
+                    </div>
+                </div>
+
+                <!-- Festival Occasion -->
+                <div class="bg-white rounded-2xl p-4 shadow-lg">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mr-3">
+                                <i class="fas fa-om text-orange-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">Holi Festival</h4>
+                                <p class="text-xs text-gray-500">March 25, 10 days</p>
+                            </div>
+                        </div>
+                        <span class="bg-orange-100 text-orange-700 text-xs font-bold px-3 py-1 rounded-full">Festival</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Intelligent Gift Recommendations with Price Comparison -->
+        <div class="px-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-white flex items-center">
+                    <i class="fas fa-sparkles mr-2"></i>
+                    Smart Recommendations
+                </h3>
+                <button class="text-white text-sm font-semibold">View All</button>
+            </div>
+
+            <!-- Gift Card 1 - Birthday Gift: Smart Watch -->
+            <div class="smart-card bg-white rounded-2xl shadow-xl mb-4 overflow-hidden" :class="expandedCard === 1 ? 'expanded' : ''" @click="expandedCard = expandedCard === 1 ? null : 1">
+                <!-- Collapsed View -->
+                <div class="p-4">
+                    <div class="flex items-center">
+                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop" alt="Smart Watch" class="w-24 h-24 rounded-xl object-cover mr-4">
+                        <div class="flex-1">
+                            <div class="flex items-center mb-1">
+                                <h4 class="font-bold text-gray-800 mr-2">Noise ColorFit Pro 4</h4>
+                                <span class="bg-gradient-to-r from-pink-500 to-pink-600 text-white text-xs font-bold px-2 py-1 rounded">Perfect Birthday Gift</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-2">Smart watch with 1.78" display</p>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xl font-bold text-blue-600">₹2,999</span>
+                                <span class="text-sm text-gray-400 line-through">₹4,999</span>
+                                <span class="best-deal-badge text-white text-xs font-bold px-2 py-1 rounded">BEST DEAL</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform" :class="expandedCard === 1 ? 'rotate-180' : ''"></i>
+                    </div>
+                </div>
+
+                <!-- Expanded View - Price Comparison -->
+                <div x-show="expandedCard === 1" class="px-4 pb-4 space-y-3">
+                    <div class="border-t-2 border-gray-100 pt-3">
+                        <p class="text-sm font-bold text-gray-700 mb-3">Price Comparison Across Platforms</p>
+                        
+                        <!-- Amazon India -->
+                        <div class="price-comparison-card bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-3 mb-2 border-2 border-orange-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center mr-3">
+                                        <i class="fab fa-amazon text-orange-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-800">Amazon India</p>
+                                        <div class="flex items-center text-xs text-gray-600">
+                                            <i class="fas fa-star text-yellow-500 mr-1"></i>
+                                            <span>4.3 (24,890 reviews)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-lg font-bold text-gray-800">₹2,999</p>
+                                    <p class="text-xs text-green-600 font-semibold">40% OFF</p>
+                                </div>
+                            </div>
+                            <button @click="redirectToStore('https://amzn.in/d/0UoKq8M')" class="w-full mt-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 rounded-lg font-bold text-sm hover:shadow-lg transition">
+                                Buy on Amazon <i class="fas fa-external-link-alt ml-1"></i>
+                            </button>
+                        </div>
+
+                        <!-- Flipkart -->
+                        <div class="price-comparison-card bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-3 mb-2 border-2 border-blue-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center mr-3">
+                                        <i class="fas fa-shopping-bag text-blue-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-800">Flipkart</p>
+                                        <div class="flex items-center text-xs text-gray-600">
+                                            <i class="fas fa-star text-yellow-500 mr-1"></i>
+                                            <span>4.2 (18,542 reviews)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-lg font-bold text-gray-800">₹3,299</p>
+                                    <p class="text-xs text-green-600 font-semibold">34% OFF</p>
+                                </div>
+                            </div>
+                            <button @click="redirectToStore('https://dl.flipkart.com/s/6jNpNNNNNN')" class="w-full mt-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 rounded-lg font-bold text-sm hover:shadow-lg transition">
+                                Buy on Flipkart <i class="fas fa-external-link-alt ml-1"></i>
+                            </button>
+                        </div>
+
+                        <!-- Best Deal Recommendation -->
+                        <div class="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-3 border-2 border-green-300 mt-3">
+                            <div class="flex items-center">
+                                <i class="fas fa-trophy text-green-600 text-2xl mr-3"></i>
+                                <div>
+                                    <p class="text-sm font-bold text-green-800">Best Deal Detected!</p>
+                                    <p class="text-xs text-green-700">Amazon India offers the lowest price with highest ratings</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gift Card 2 - Anniversary Gift: Diamond Pendant -->
+            <div class="smart-card bg-white rounded-2xl shadow-xl mb-4 overflow-hidden" :class="expandedCard === 2 ? 'expanded' : ''" @click="expandedCard = expandedCard === 2 ? null : 2">
+                <div class="p-4">
+                    <div class="flex items-center">
+                        <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=300&h=300&fit=crop" alt="Diamond Pendant" class="w-24 h-24 rounded-xl object-cover mr-4">
+                        <div class="flex-1">
+                            <div class="flex items-center mb-1">
+                                <h4 class="font-bold text-gray-800 mr-2">CaratLane Diamond Pendant</h4>
+                                <span class="bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs font-bold px-2 py-1 rounded">Perfect Anniversary Gift</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-2">Elegant 0.5 carat diamond pendant</p>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xl font-bold text-blue-600">₹15,999</span>
+                                <span class="text-sm text-gray-400 line-through">₹25,999</span>
+                                <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-1 rounded">38% OFF</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform" :class="expandedCard === 2 ? 'rotate-180' : ''"></i>
+                    </div>
+                </div>
+
+                <div x-show="expandedCard === 2" class="px-4 pb-4 space-y-3">
+                    <div class="border-t-2 border-gray-100 pt-3">
+                        <p class="text-sm font-bold text-gray-700 mb-3">Price Comparison</p>
+                        
+                        <div class="price-comparison-card bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-3 mb-2 border-2 border-blue-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center mr-3">
+                                        <i class="fas fa-shopping-bag text-blue-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-800">Flipkart</p>
+                                        <div class="flex items-center text-xs text-gray-600">
+                                            <i class="fas fa-star text-yellow-500 mr-1"></i>
+                                            <span>4.7 (8,942 reviews)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-lg font-bold text-gray-800">₹15,999</p>
+                                    <p class="text-xs text-green-600 font-semibold">38% OFF</p>
+                                </div>
+                            </div>
+                            <button @click="redirectToStore('https://dl.flipkart.com/s/7kQpNNNNNN')" class="w-full mt-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 rounded-lg font-bold text-sm">
+                                Buy on Flipkart <i class="fas fa-external-link-alt ml-1"></i>
+                            </button>
+                        </div>
+
+                        <div class="price-comparison-card bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-3 mb-2 border-2 border-orange-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center mr-3">
+                                        <i class="fab fa-amazon text-orange-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-800">Amazon India</p>
+                                        <div class="flex items-center text-xs text-gray-600">
+                                            <i class="fas fa-star text-yellow-500 mr-1"></i>
+                                            <span>4.6 (7,823 reviews)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-lg font-bold text-gray-800">₹16,499</p>
+                                    <p class="text-xs text-green-600 font-semibold">36% OFF</p>
+                                </div>
+                            </div>
+                            <button @click="redirectToStore('https://amzn.in/d/0VmLq9N')" class="w-full mt-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 rounded-lg font-bold text-sm">
+                                Buy on Amazon <i class="fas fa-external-link-alt ml-1"></i>
+                            </button>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-3 border-2 border-green-300">
+                            <div class="flex items-center">
+                                <i class="fas fa-trophy text-green-600 text-2xl mr-3"></i>
+                                <div>
+                                    <p class="text-sm font-bold text-green-800">Best Value!</p>
+                                    <p class="text-xs text-green-700">Flipkart has the best price with excellent ratings</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gift Card 3 - Holi Gift: Organic Color Kit -->
+            <div class="bg-white rounded-2xl p-4 shadow-xl">
+                <div class="flex items-center">
+                    <img src="https://images.unsplash.com/photo-1612198188060-c7c2a3b66eae?w=300&h=300&fit=crop" alt="Organic Holi Colors" class="w-24 h-24 rounded-xl object-cover mr-4">
+                    <div class="flex-1">
+                        <div class="flex items-center mb-1">
+                            <h4 class="font-bold text-gray-800 mr-2">Nirmalaya Organic Holi Kit</h4>
+                            <span class="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-2 py-1 rounded">Perfect Holi Gift</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-2">5 colors + herbal gulal + organic pack</p>
+                        <div class="flex items-center space-x-2 mb-2">
+                            <span class="text-xl font-bold text-blue-600">₹799</span>
+                            <span class="text-sm text-gray-400 line-through">₹1,599</span>
+                            <span class="bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded">50% OFF</span>
+                        </div>
+                        <button @click="redirectToStore('https://amzn.in/d/0WnLr0P')" class="text-sm text-blue-600 font-semibold">Buy Now on Amazon →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Action Button -->
+        <button class="fixed bottom-24 right-6 w-16 h-16 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full shadow-2xl flex items-center justify-center floating-action z-50">
+            <i class="fas fa-plus text-white text-2xl"></i>
+        </button>
+
+        <!-- Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4 shadow-2xl">
+            <div class="flex items-center justify-around">
+                <button @click="navigateTo('home', 'home')" class="flex flex-col items-center" :class="activeNav === 'home' ? 'text-blue-600' : 'text-gray-400'">
+                    <i class="fas fa-home text-2xl mb-1"></i>
+                    <span class="text-xs font-bold">Home</span>
+                </button>
+                <button @click="navigateTo('shoppingList', 'lists')" class="flex flex-col items-center" :class="activeNav === 'lists' ? 'text-blue-600' : 'text-gray-400'">
+                    <i class="fas fa-list text-2xl mb-1"></i>
+                    <span class="text-xs">Lists</span>
+                </button>
+                <button @click="navigateTo('gifts', 'gifts')" class="flex flex-col items-center relative" :class="activeNav === 'gifts' ? 'text-blue-600' : 'text-gray-400'">
+                    <i class="fas fa-gift text-2xl mb-1"></i>
+                    <span class="text-xs">Gifts</span>
+                    <span class="absolute -top-1 -right-2 w-4 h-4 bg-orange-500 rounded-full text-white text-xs font-bold flex items-center justify-center">3</span>
+                </button>
+                <button @click="navigateTo('profile', 'profile')" class="flex flex-col items-center" :class="activeNav === 'profile' ? 'text-blue-600' : 'text-gray-400'">
+                    <i class="fas fa-user text-2xl mb-1"></i>
+                    <span class="text-xs">Profile</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 4: SHOPPING LIST PAGE -->
+    <div x-show="currentScreen === 'shoppingList'" class="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 pb-24 fade-in">
+        <!-- Header -->
+        <div class="px-6 py-6">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center">
+                    <button @click="navigateTo('home', 'home')" class="w-12 h-12 bg-white rounded-xl shadow-md flex items-center justify-center mr-4 hover:bg-gray-50 transition">
+                        <i class="fas fa-arrow-left text-gray-700 text-lg"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Shopping List</h2>
+                        <p class="text-sm text-gray-500">Create your personalized list</p>
+                    </div>
+                </div>
+                <button class="w-12 h-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-md flex items-center justify-center">
+                    <i class="fas fa-share-alt text-white text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress Stats -->
+        <div class="px-6 mb-6">
+            <div class="bg-white rounded-2xl p-4 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-blue-600" x-text="getTotalItems()">0</p>
+                        <p class="text-xs text-gray-500">Total Items</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-green-600" x-text="getCheckedItems()">0</p>
+                        <p class="text-xs text-gray-500">Completed</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-orange-600" x-text="getTotalItems() - getCheckedItems()">0</p>
+                        <p class="text-xs text-gray-500">Remaining</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="px-6 mb-4">
+            <div class="flex space-x-2 overflow-x-auto pb-2">
+                <template x-for="category in categories" :key="category">
+                    <button 
+                        @click="selectedCategory = category" 
+                        class="category-tag px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all"
+                        :class="selectedCategory === category ? 
+                            'active bg-gradient-to-r from-blue-600 to-blue-700 text-white' : 
+                            'bg-white text-gray-700 shadow-sm'">
+                        <span x-text="category"></span>
+                    </button>
+                </template>
+            </div>
+        </div>
+
+        <!-- Add Item Input -->
+        <div class="px-6 mb-4">
+            <div class="bg-white rounded-2xl p-4 shadow-lg">
+                <div class="flex items-center space-x-3">
+                    <div class="flex-1">
+                        <input 
+                            type="text" 
+                            x-model="newItemText" 
+                            @keyup.enter="addShoppingItem()"
+                            placeholder="Add item to your list..." 
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition">
+                    </div>
+                    <button 
+                        @click="addShoppingItem()"
+                        class="w-12 h-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-md hover:shadow-lg transition">
+                        <i class="fas fa-plus text-white text-lg"></i>
+                    </button>
+                </div>
+                
+                <!-- Category Selection -->
+                <div class="mt-3 flex space-x-2 overflow-x-auto">
+                    <template x-for="category in categories.filter(c => c !== 'All')" :key="category">
+                        <button 
+                            @click="selectedCategory = category" 
+                            class="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all"
+                            :class="selectedCategory === category ? 
+                                'bg-blue-100 text-blue-700 border-2 border-blue-300' : 
+                                'bg-gray-100 text-gray-600 border-2 border-gray-200'">
+                            <span x-text="category"></span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shopping List Items -->
+        <div class="px-6 space-y-3">
+            <template x-for="item in getFilteredItems()" :key="item.id">
+                <div class="shopping-item bg-white rounded-2xl p-4 shadow-md" :class="item.checked ? 'checked' : ''">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <button 
+                                @click="toggleItemChecked(item.id)"
+                                class="w-8 h-8 rounded-full border-2 flex items-center justify-center mr-3 transition-all"
+                                :class="item.checked ? 
+                                    'bg-green-500 border-green-500 text-white' : 
+                                    'border-gray-300 text-transparent'">
+                                <i class="fas fa-check text-xs"></i>
+                            </button>
+                            <div>
+                                <p class="font-medium text-gray-800" x-text="item.text"></p>
+                                <div class="flex items-center mt-1">
+                                    <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-medium" x-text="item.category"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <button 
+                            @click="removeShoppingItem(item.id)"
+                            class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 hover:bg-red-200 transition">
+                            <i class="fas fa-trash text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Empty State -->
+            <div x-show="getFilteredItems().length === 0" class="text-center py-12">
+                <div class="w-24 h-24 bg-gradient-to-br from-blue-100 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-shopping-cart text-blue-500 text-3xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-700 mb-2">Your list is empty</h3>
+                <p class="text-sm text-gray-500 mb-4">Add items to create your shopping list</p>
+                <button 
+                    @click="newItemText = 'Organic Holi Colors'; addShoppingItem(); newItemText = ''"
+                    class="text-blue-600 font-semibold text-sm">
+                    Add Holi colors to list
+                </button>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4 shadow-2xl">
+            <div class="flex space-x-3">
+                <button class="flex-1 bg-white border-2 border-blue-600 text-blue-600 py-3 rounded-xl font-bold flex items-center justify-center hover:bg-blue-50 transition">
+                    <i class="fas fa-save mr-2"></i>
+                    Save List
+                </button>
+                <button class="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-xl font-bold flex items-center justify-center shadow-lg hover:shadow-xl transition">
+                    <i class="fas fa-file-pdf mr-2"></i>
+                    Export PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 5: GIFTS PAGE -->
+    <div x-show="currentScreen === 'gifts'" class="flex flex-col min-h-screen bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 pb-24 fade-in">
+        <!-- Header -->
+        <div class="px-6 py-6">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center">
+                    <button @click="navigateTo('home', 'home')" class="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-4">
+                        <i class="fas fa-arrow-left text-white text-lg"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Gift Suggestions</h2>
+                        <p class="text-sm text-purple-100">AI-powered recommendations</p>
+                    </div>
+                </div>
+                <button class="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                    <i class="fas fa-filter text-white text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Gift Categories -->
+        <div class="px-6 mb-6">
+            <div class="flex space-x-3 overflow-x-auto pb-2">
+                <button class="px-4 py-2 bg-white bg-opacity-20 backdrop-blur-sm text-white rounded-full text-sm font-semibold whitespace-nowrap">All Gifts</button>
+                <button class="px-4 py-2 bg-white bg-opacity-30 backdrop-blur-sm text-white rounded-full text-sm font-semibold whitespace-nowrap">Birthday</button>
+                <button class="px-4 py-2 bg-white bg-opacity-20 backdrop-blur-sm text-white rounded-full text-sm font-semibold whitespace-nowrap">Anniversary</button>
+                <button class="px-4 py-2 bg-white bg-opacity-20 backdrop-blur-sm text-white rounded-full text-sm font-semibold whitespace-nowrap">Festival</button>
+                <button class="px-4 py-2 bg-white bg-opacity-20 backdrop-blur-sm text-white rounded-full text-sm font-semibold whitespace-nowrap">Trending</button>
+            </div>
+        </div>
+
+        <!-- Featured Gifts -->
+        <div class="px-6 space-y-4">
+            <!-- Featured Gift 1 -->
+            <div class="bg-white rounded-2xl p-4 shadow-xl">
+                <div class="flex items-center mb-3">
+                    <div class="w-16 h-16 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center mr-3">
+                        <i class="fas fa-crown text-white text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">Premium Gift Collection</h3>
+                        <p class="text-xs text-gray-500">Curated luxury items</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-gradient-to-br from-pink-50 to-purple-50 rounded-xl p-3 text-center">
+                        <i class="fas fa-gem text-pink-600 text-2xl mb-2"></i>
+                        <p class="text-sm font-bold text-gray-800">Jewelry</p>
+                        <p class="text-xs text-gray-500">12 items</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-3 text-center">
+                        <i class="fas fa-watch text-blue-600 text-2xl mb-2"></i>
+                        <p class="text-sm font-bold text-gray-800">Watches</p>
+                        <p class="text-xs text-gray-500">8 items</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Gift Ideas -->
+            <div class="bg-white rounded-2xl p-4 shadow-xl">
+                <h3 class="text-lg font-bold text-gray-800 mb-3">Quick Gift Ideas</h3>
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                        <div class="flex items-center">
+                            <i class="fas fa-mobile-alt text-blue-600 text-lg mr-3"></i>
+                            <span class="text-sm font-medium text-gray-800">Smartphones</span>
+                        </div>
+                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">12 options</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                        <div class="flex items-center">
+                            <i class="fas fa-tshirt text-purple-600 text-lg mr-3"></i>
+                            <span class="text-sm font-medium text-gray-800">Fashion</span>
+                        </div>
+                        <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">24 options</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                        <div class="flex items-center">
+                            <i class="fas fa-home text-green-600 text-lg mr-3"></i>
+                            <span class="text-sm font-medium text-gray-800">Home Decor</span>
+                        </div>
+                        <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">18 options</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Recommendations -->
+            <div class="bg-white rounded-2xl p-4 shadow-xl">
+                <h3 class="text-lg font-bold text-gray-800 mb-3">Based on Your Interests</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center">
+                        <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=100&h=100&fit=crop" alt="Wireless Earbuds" class="w-16 h-16 rounded-xl object-cover mr-3">
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold text-gray-800">Wireless Earbuds</h4>
+                            <p class="text-xs text-gray-500">Noise cancellation</p>
+                            <div class="flex items-center mt-1">
+                                <span class="text-xs font-bold text-blue-600">₹2,499</span>
+                                <span class="text-xs text-gray-400 line-through ml-2">₹4,999</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=100&h=100&fit=crop" alt="Camera" class="w-16 h-16 rounded-xl object-cover mr-3">
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold text-gray-800">Digital Camera</h4>
+                            <p class="text-xs text-gray-500">24MP, 4K Video</p>
+                            <div class="flex items-center mt-1">
+                                <span class="text-xs font-bold text-blue-600">₹18,999</span>
+                                <span class="text-xs text-gray-400 line-through ml-2">₹24,999</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4 shadow-2xl">
+            <div class="flex items-center justify-around">
+                <button @click="navigateTo('home', 'home')" class="flex flex-col items-center" :class="activeNav === 'home' ? 'text-blue-600' : 'text-gray-400'">
+                    <i class="fas fa-home text-2xl mb-1"></i>
+                    <span class="text-xs">Home</span>
+                </button>
+                <button @click="navigateTo('shoppingList', 'lists')" class="flex flex-col items-center" :class="activeNav === 'lists' ? 'text-blue-600' : 'text-gray-400'">
+                    <i class="fas fa-list text-2xl mb-1"></i>
+                    <span class="text-xs">Lists</span>
+                </button>
+                <button @click="navigateTo('gifts', 'gifts')" class="flex flex-col items-center relative" :class="activeNav === 'gifts' ? 'text-blue-600' : 'text-gray-400'">
+                    <i class="fas fa-gift text-2xl mb-1"></i>
+                    <span class="text-xs font-bold">Gifts</span>
+                    <span class="absolute -top-1 -right-2 w-4 h-4 bg-orange-500 rounded-full text-white text-xs font-bold flex items-center justify-center">3</span>
+                </button>
+                <button @click="navigateTo('profile', 'profile')" class="flex flex-col items-center" :class="activeNav === 'profile' ? 'text-blue-600' : 'text-gray-400'">
+                    <i class="fas fa-user text-2xl mb-1"></i>
+                    <span class="text-xs">Profile</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 6: PROFILE PAGE -->
+    <div x-show="currentScreen === 'profile'" class="flex flex-col min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 pb-24 fade-in">
+        <!-- Header -->
+        <div class="px-6 py-6">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center">
+                    <button @click="navigateTo('home', 'home')" class="w-12 h-12 bg-white rounded-xl shadow-md flex items-center justify-center mr-4 hover:bg-gray-50 transition">
+                        <i class="fas fa-arrow-left text-gray-700 text-lg"></i>
+                    </button>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">My Profile</h2>
+                        <p class="text-sm text-gray-500">Manage your account</p>
+                    </div>
+                </div>
+                <button class="w-12 h-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-md flex items-center justify-center">
+                    <i class="fas fa-cog text-white text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="px-6 mb-6">
+            <div class="bg-white rounded-2xl p-6 shadow-xl">
+                <div class="flex items-center mb-6">
+                    <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mr-4">
+                        <i class="fas fa-user text-white text-3xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-gray-800" x-text="userProfile.name"></h3>
+                        <p class="text-sm text-gray-500" x-text="userProfile.email"></p>
+                        <p class="text-xs text-gray-400 mt-1">Member since <span x-text="userProfile.joinedDate"></span></p>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-blue-50 rounded-xl p-3 text-center">
+                        <p class="text-2xl font-bold text-blue-600" x-text="userProfile.totalLists"></p>
+                        <p class="text-xs text-gray-600">Shopping Lists</p>
+                    </div>
+                    <div class="bg-green-50 rounded-xl p-3 text-center">
+                        <p class="text-2xl font-bold text-green-600">₹<span x-text="userProfile.savedAmount"></span></p>
+                        <p class="text-xs text-gray-600">Total Saved</p>
+                    </div>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="space-y-3">
+                    <div class="flex items-center p-3 bg-gray-50 rounded-xl">
+                        <i class="fas fa-mobile-alt text-blue-600 text-lg mr-3"></i>
+                        <span class="text-sm text-gray-800" x-text="userProfile.mobile"></span>
+                    </div>
+                    <div class="flex items-center p-3 bg-gray-50 rounded-xl">
+                        <i class="fas fa-envelope text-orange-600 text-lg mr-3"></i>
+                        <span class="text-sm text-gray-800" x-text="userProfile.email"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="px-6 mb-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Quick Actions</h3>
+            <div class="grid grid-cols-2 gap-3">
+                <button class="bg-white rounded-xl p-4 shadow-md text-center hover:shadow-lg transition">
+                    <i class="fas fa-history text-purple-600 text-2xl mb-2"></i>
+                    <p class="text-sm font-medium text-gray-800">Order History</p>
+                </button>
+                <button class="bg-white rounded-xl p-4 shadow-md text-center hover:shadow-lg transition">
+                    <i class="fas fa-heart text-red-600 text-2xl mb-2"></i>
+                    <p class="text-sm font-medium text-gray-800">Wishlist</p>
+                </button>
+                <button class="bg-white rounded-xl p-4 shadow-md text-center hover:shadow-lg transition">
+                    <i class="fas fa-bell text-yellow-600 text-2xl mb-2"></i>
+                    <p class="text-sm font-medium text-gray-800">Notifications</p>
+                </button>
+                <button class="bg-white rounded-xl p-4 shadow-md text-center hover:shadow-lg transition">
+                    <i class="fas fa-shield-alt text-green-600 text-2xl mb-2"></i>
+                    <p class="text-sm font-medium text-gray-800">Privacy</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- App Settings -->
+        <div class="px-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">App Settings</h3>
+            <div class="bg-white rounded-2xl p-4 shadow-md">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fas fa-bell text-blue-600 text-lg mr-3"></i>
+                            <span class="text-sm font-medium text-gray-800">Push Notifications</span>
+                        </div>
+                        <label class="relative inline-block w-12 h-6">
+                            <input type="checkbox" class="sr-only peer" checked>
+                            <div class="w-12 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition-all"></div>
+                            <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all peer-checked:translate-x-6"></div>
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fas fa-calendar text-green-600 text-lg mr-3"></i>
+                            <span class="text-sm font-medium text-gray-800">Calendar Sync</span>
+                        </div>
+                        <label class="relative inline-block w-12 h-6">
+                            <input type="checkbox" class="sr-only peer" checked>
+                            <div class="w-12 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-600 transition-all"></div>
+                            <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all peer-checked:translate-x-6"></div>
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fab fa-instagram text-pink-600 text-lg mr-3"></i>
+                            <span class="text-sm font-medium text-gray-800">Instagram Sync</span>
+                        </div>
+                        <label class="relative inline-block w-12 h-6">
+                            <input type="checkbox" class="sr-only peer" checked>
+                            <div class="w-12 h-6 bg-gray-300 rounded-full peer peer-checked:bg-pink-600 transition-all"></div>
+                            <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all peer-checked:translate-x-6"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4 shadow-2xl">
+            <div class="flex items-center justify-around">
+                <button @click="navigateTo('home', 'home')" class="flex flex-col items-center" :class="activeNav === 'home' ? 'text-blue-600' : 'text-gray-400'">
+                    <i class="fas fa-home text-2xl mb-1"></i>
+                    <span class="text-xs">Home</span>
+                </button>
+                <button @click="navigateTo('shoppingList', 'lists')" class="flex flex-col items-center" :class="activeNav === 'lists' ? 'text-blue-600' : 'text-gray-400'">
+                    <i class="fas fa-list text-2xl mb-1"></i>
+                    <span class="text-xs">Lists</span>
+                </button>
+                <button @click="navigateTo('gifts', 'gifts')" class="flex flex-col items-center relative" :class="activeNav === 'gifts' ? 'text-blue-600' : 'text-gray-400'">
+                    <i class="fas fa-gift text-2xl mb-1"></i>
+                    <span class="text-xs">Gifts</span>
+                    <span class="absolute -top-1 -right-2 w-4 h-4 bg-orange-500 rounded-full text-white text-xs font-bold flex items-center justify-center">3</span>
+                </button>
+                <button @click="navigateTo('profile', 'profile')" class="flex flex-col items-center" :class="activeNav === 'profile' ? 'text-blue-600' : 'text-gray-400'">
+                    <i class="fas fa-user text-2xl mb-1"></i>
+                    <span class="text-xs font-bold">Profile</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
